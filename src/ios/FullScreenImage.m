@@ -7,38 +7,29 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "NSData+Base64.h"
 
-
 @implementation FullScreenImage
 
-
-- (void)setupDocumentControllerWithURL:(NSURL *)url
-{
+- (void)setupDocumentControllerWithURL:(NSURL *)url {
     //checks if docInteractionController has been initialized with the URL
-    if (self.docInteractionController == nil)
-    {
+    if (self.docInteractionController == nil) {
         self.docInteractionController = [UIDocumentInteractionController interactionControllerWithURL:url];
         self.docInteractionController.delegate = self;
-    }
-    else
-    {
+    } else {
         self.docInteractionController.URL = url;
     }
 }
 
-
-- (void) showImageURL:(CDVInvokedUrlCommand*)command{
+- (void) showImageURL:(CDVInvokedUrlCommand*)command {
     // Check command.arguments here.
     [self.commandDelegate runInBackground:^{
         self.documentURLs = [NSMutableArray array];
-        
-        
+
         NSString *fullPath = [[command.arguments objectAtIndex:0] valueForKey:@"url"];
-        
-        NSString *soundFilePath = [NSString stringWithFormat:@"%@/www/%@",[[NSBundle mainBundle] resourcePath],fullPath];
-        NSURL *URL = [NSURL fileURLWithPath:soundFilePath];
-        
+
+        //NSString *soundFilePath = [NSString stringWithFormat:@"%@/www/%@",[[NSBundle mainBundle] resourcePath],fullPath];
+        NSURL *URL = [NSURL fileURLWithPath:fullPath];
+
         if (URL) {
-            
             [self.documentURLs addObject:URL];
             [self setupDocumentControllerWithURL:URL];
             double delayInSeconds = 0.1;
@@ -46,54 +37,44 @@
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                 [self.docInteractionController presentPreviewAnimated:YES];
             });
-            
-            
-            
         }
     }];
 }
 
-- (void) showImageBase64:(CDVInvokedUrlCommand*)command{
-    
+- (void) showImageBase64:(CDVInvokedUrlCommand*)command {
     [self.commandDelegate runInBackground:^{
         NSString *fullPath = [[command.arguments objectAtIndex:0] valueForKey:@"base64"];
-        
         NSString *imageName = [[command.arguments objectAtIndex:0] valueForKey:@"name"];
-        
         NSString *imageType = [[command.arguments objectAtIndex:0] valueForKey:@"type"];
-        
-        if([imageName isKindOfClass:[NSNull class]] || [imageName isEqualToString:@""]){
+
+        if([imageName isKindOfClass:[NSNull class]] || [imageName isEqualToString:@""]) {
             imageName = @"default";
         }
-        
-        if([imageType isKindOfClass:[NSNull class]] || [imageType isEqualToString:@""]){
 
+        if([imageType isKindOfClass:[NSNull class]] || [imageType isEqualToString:@""]) {
             NSData *imageDatatest = [NSData dataFromBase64String:fullPath];
             imageType = [self contentTypeForImageData:imageDatatest];
         }
-        
+
         NSString *str = [NSString stringWithFormat:@"data:image/%@;base64,",imageType];
         str = [str stringByAppendingString:fullPath];
         NSURL *url = [NSURL URLWithString:str];
         NSData *imageData = [NSData dataWithContentsOfURL:url];
         UIImage *ret = [UIImage imageWithData:imageData];
-        
-        
+
         NSData *imageDataSaved=UIImagePNGRepresentation(ret);
-        
-        
+
         NSString *docsDir;
         NSArray *dirPaths;
-        
-        
+
         dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         docsDir = [dirPaths objectAtIndex:0];
         NSString *completeImageName = [NSString stringWithFormat:@"%@.%@",imageName,imageType];
         NSString *databasePath = [[NSString alloc] initWithString: [docsDir stringByAppendingPathComponent:completeImageName]];
         [imageDataSaved writeToFile:databasePath atomically:YES];
-        
+
         NSURL *imageURL=[NSURL fileURLWithPath:databasePath];
-        
+
         if (imageURL) {
             [self.documentURLs addObject:imageURL];
             [self setupDocumentControllerWithURL:imageURL];
@@ -108,11 +89,10 @@
 
 - (UIDocumentInteractionController *) setupControllerWithURL: (NSURL*) fileURL
                                                usingDelegate: (id <UIDocumentInteractionControllerDelegate>) interactionDelegate {
-    
     UIDocumentInteractionController *interactionController =
     [UIDocumentInteractionController interactionControllerWithURL: fileURL];
     interactionController.delegate = interactionDelegate;
-    
+
     return interactionController;
 }
 
@@ -123,7 +103,7 @@
 - (NSString *)contentTypeForImageData:(NSData *)data {
     uint8_t c;
     [data getBytes:&c length:1];
-    
+
     switch (c) {
         case 0xFF:
             return @"jpeg";
@@ -138,7 +118,4 @@
     return nil;
 }
 
-
-
 @end
-

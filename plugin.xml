@@ -1,6 +1,6 @@
 <plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    id="es.keensoft.fullscreenimage"
+    id="cordova-plugin-fullscreenimage"
     version="1.0.0">
 
     <name>Full Screen Image</name>
@@ -28,8 +28,8 @@
         </config-file>
         <header-file src="src/ios/FullScreenImage.h" />
         <source-file src="src/ios/FullScreenImage.m" />
-         <header-file src="src/ios/NSData+Base64.h" />
-         <source-file src="src/ios/NSData+Base64.m" />
+        <header-file src="src/ios/NSData+Base64.h" />
+        <source-file src="src/ios/NSData+Base64.m" />
     </platform>
 
 	<!-- Android -->
@@ -44,5 +44,4 @@
         </config-file>
         <source-file src="src/android/FullScreenImage.java" target-dir="src/es/keensoft/fullscreenimage" />
     </platform>
-    
 </plugin>
