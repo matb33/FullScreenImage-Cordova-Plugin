@@ -24,10 +24,16 @@
     [self.commandDelegate runInBackground:^{
         self.documentURLs = [NSMutableArray array];
 
-        NSString *fullPath = [[command.arguments objectAtIndex:0] valueForKey:@"url"];
+        NSString *originalPath = [[command.arguments objectAtIndex:0] valueForKey:@"url"];
+        NSString *finalPath;
 
-        //NSString *soundFilePath = [NSString stringWithFormat:@"%@/www/%@",[[NSBundle mainBundle] resourcePath],fullPath];
-        NSURL *URL = [NSURL fileURLWithPath:fullPath];
+//        if ([originalPath hasPrefix:@"/img/"]) {
+//            finalPath = [NSString stringWithFormat:@"%@/www%@",[[NSBundle mainBundle] resourcePath], originalPath];
+//        } else {
+            finalPath = originalPath;
+//        }
+
+        NSURL *URL = [NSURL fileURLWithPath:finalPath];
 
         if (URL) {
             [self.documentURLs addObject:URL];
